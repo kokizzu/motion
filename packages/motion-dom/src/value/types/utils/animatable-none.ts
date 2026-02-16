@@ -3,7 +3,7 @@ import { filter } from "../complex/filter"
 import { mask } from "../complex/mask"
 import { getDefaultValueType } from "../maps/defaults"
 
-const customTypes = new Set([filter, mask])
+const customTypes = /*@__PURE__*/ new Set([filter, mask])
 
 export function getAnimatableNone(key: string, value: string) {
     let defaultValueType = getDefaultValueType(key)
