@@ -4,9 +4,16 @@ Motion adheres to [Semantic Versioning](http://semver.org/).
 
 Undocumented APIs should be considered internal and may change without warning.
 
-## [12.34.0] 2026-02-09
+## [12.34.1] 2026-02-17
 
 ### Fixed
+
+-   `useScroll`: Ensure animations aren't hardware accelerated when `target` is set.
+-   Improve animatable `"none"` generation for mask values.
+
+## [12.34.0] 2026-02-09
+
+### Added
 
 -   `useScroll`: Hardware accelerated animations.
 
