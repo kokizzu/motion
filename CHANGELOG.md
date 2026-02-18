@@ -4,6 +4,12 @@ Motion adheres to [Semantic Versioning](http://semver.org/).
 
 Undocumented APIs should be considered internal and may change without warning.
 
+## [12.34.2] 2026-02-18
+
+### Fixed
+
+-   Layout animations: Reset motion value velocity when starting a new layout animation.
+
 ## [12.34.1] 2026-02-17
 
 ### Fixed
