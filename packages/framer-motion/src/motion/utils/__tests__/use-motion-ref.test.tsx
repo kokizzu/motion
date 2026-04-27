@@ -1,6 +1,6 @@
 import * as React from "react"
 import { useRef } from "react"
-import { motion } from "../../.."
+import { motion, visualElementStore } from "../../.."
 import { render } from "../../../jest.setup"
 
 describe("useMotionRef", () => {
@@ -83,6 +83,23 @@ describe("useMotionRef", () => {
 
         // Should handle transition between ref types without errors
         expect(() => rerender(<Component useCallback={false} />)).not.toThrow()
+    })
+
+    it("should register VisualElement in visualElementStore before external ref callback runs", () => {
+        let lookedUpVisualElement: unknown = "not-set"
+
+        const refCallback = (instance: HTMLDivElement | null) => {
+            if (instance) {
+                lookedUpVisualElement = visualElementStore.get(instance)
+            }
+        }
+
+        const Component = () => <motion.div ref={refCallback} />
+
+        render(<Component />)
+
+        expect(lookedUpVisualElement).toBeDefined()
+        expect(lookedUpVisualElement).not.toBeNull()
     })
 
     it("should work with forwardRef components", () => {
