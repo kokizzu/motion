@@ -35,6 +35,17 @@ export function useMotionRef<Instance, RenderState>(
                 visualState.onMount?.(instance)
             }
 
+            /**
+             * Register the instance with the VisualElement before invoking
+             * the external ref so that consumer ref callbacks can resolve
+             * the VisualElement via visualElementStore.get(instance).
+             * mount() (which runs bindToMotionValue and depends on the
+             * external ref being populated) is deferred until after.
+             */
+            if (visualElement && instance) {
+                visualElement.register(instance)
+            }
+
             const ref = externalRefContainer.current
             if (typeof ref === "function") {
                 if (instance) {
