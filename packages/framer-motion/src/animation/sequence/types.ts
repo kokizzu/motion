@@ -118,6 +118,7 @@ export interface SequenceOptions extends AnimationPlaybackOptions {
     duration?: number
     defaultTransition?: Transition
     reduceMotion?: boolean
+    skipAnimations?: boolean
     onComplete?: () => void
 }
 

@@ -25,6 +25,7 @@ function isSequence(value: unknown): value is AnimationSequence {
 interface ScopedAnimateOptions {
     scope?: AnimationScope
     reduceMotion?: boolean
+    skipAnimations?: boolean
 }
 
 /**
@@ -32,7 +33,7 @@ interface ScopedAnimateOptions {
  * to a specific element.
  */
 export function createScopedAnimate(options: ScopedAnimateOptions = {}) {
-    const { scope, reduceMotion } = options
+    const { scope, reduceMotion, skipAnimations } = options
     /**
      * Animate a sequence
      */
@@ -117,9 +118,13 @@ export function createScopedAnimate(options: ScopedAnimateOptions = {}) {
             }
             animations = animateSequence(
                 subjectOrSequence,
-                reduceMotion !== undefined
-                    ? { reduceMotion, ...sequenceOptions }
-                    : (sequenceOptions as SequenceOptions),
+                {
+                    ...(reduceMotion !== undefined ? { reduceMotion } : {}),
+                    ...(skipAnimations !== undefined
+                        ? { skipAnimations }
+                        : {}),
+                    ...sequenceOptions,
+                } as SequenceOptions,
                 scope
             )
         } else {
@@ -131,9 +136,13 @@ export function createScopedAnimate(options: ScopedAnimateOptions = {}) {
             animations = animateSubject(
                 subjectOrSequence as ElementOrSelector,
                 optionsOrKeyframes as DOMKeyframesDefinition,
-                (reduceMotion !== undefined
-                    ? { reduceMotion, ...rest }
-                    : rest) as DynamicAnimationOptions,
+                {
+                    ...(reduceMotion !== undefined ? { reduceMotion } : {}),
+                    ...(skipAnimations !== undefined
+                        ? { skipAnimations }
+                        : {}),
+                    ...rest,
+                } as DynamicAnimationOptions,
                 scope
             )
         }
