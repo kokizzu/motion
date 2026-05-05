@@ -46,8 +46,7 @@ export function animateTarget(
         : defaultTransition
 
     const reduceMotion = (transition as { reduceMotion?: boolean })?.reduceMotion
-    const skipAnimations = (transition as { skipAnimations?: boolean })
-        ?.skipAnimations
+    const skipAnimations = transition?.skipAnimations
 
     if (transitionOverride) transition = transitionOverride
 

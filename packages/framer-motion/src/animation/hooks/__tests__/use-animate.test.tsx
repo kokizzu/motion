@@ -130,8 +130,6 @@ describe("useAnimate", () => {
                     )
 
                     setTimeout(() => {
-                        // Animation should have been skipped to its final
-                        // value, not allowed to run for 10s.
                         expect(scope.current).toHaveStyle("opacity: 0.5;")
                         expect(scope.animations.length).toBe(0)
                         resolve()

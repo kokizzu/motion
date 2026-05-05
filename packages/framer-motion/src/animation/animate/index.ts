@@ -110,6 +110,12 @@ export function createScopedAnimate(options: ScopedAnimateOptions = {}) {
         let animations: AnimationPlaybackControlsWithThen[] = []
         let animationOnComplete: VoidFunction | undefined
 
+        const inherited: { reduceMotion?: boolean; skipAnimations?: boolean } =
+            {}
+        if (reduceMotion !== undefined) inherited.reduceMotion = reduceMotion
+        if (skipAnimations !== undefined)
+            inherited.skipAnimations = skipAnimations
+
         if (isSequence(subjectOrSequence)) {
             const { onComplete, ...sequenceOptions } =
                 (optionsOrKeyframes as SequenceOptions) || {}
@@ -118,13 +124,7 @@ export function createScopedAnimate(options: ScopedAnimateOptions = {}) {
             }
             animations = animateSequence(
                 subjectOrSequence,
-                {
-                    ...(reduceMotion !== undefined ? { reduceMotion } : {}),
-                    ...(skipAnimations !== undefined
-                        ? { skipAnimations }
-                        : {}),
-                    ...sequenceOptions,
-                } as SequenceOptions,
+                { ...inherited, ...sequenceOptions } as SequenceOptions,
                 scope
             )
         } else {
@@ -136,13 +136,7 @@ export function createScopedAnimate(options: ScopedAnimateOptions = {}) {
             animations = animateSubject(
                 subjectOrSequence as ElementOrSelector,
                 optionsOrKeyframes as DOMKeyframesDefinition,
-                {
-                    ...(reduceMotion !== undefined ? { reduceMotion } : {}),
-                    ...(skipAnimations !== undefined
-                        ? { skipAnimations }
-                        : {}),
-                    ...rest,
-                } as DynamicAnimationOptions,
+                { ...inherited, ...rest } as DynamicAnimationOptions,
                 scope
             )
         }
