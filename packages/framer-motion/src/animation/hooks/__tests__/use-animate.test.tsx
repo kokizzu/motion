@@ -1,6 +1,7 @@
 import "@testing-library/jest-dom"
 import { render } from "@testing-library/react"
 import { useEffect } from "react"
+import { MotionConfig } from "../../../components/MotionConfig"
 import { useAnimate } from "../use-animate"
 
 describe("useAnimate", () => {
@@ -114,5 +115,35 @@ describe("useAnimate", () => {
         })
 
         expect(frameCount).toEqual(3)
+    })
+
+    test("Applies final value instantly when MotionConfig skipAnimations is true", () => {
+        return new Promise<void>((resolve) => {
+            const Component = () => {
+                const [scope, animate] = useAnimate()
+
+                useEffect(() => {
+                    animate(
+                        scope.current,
+                        { opacity: 0.5 },
+                        { duration: 10 }
+                    )
+
+                    setTimeout(() => {
+                        expect(scope.current).toHaveStyle("opacity: 0.5;")
+                        expect(scope.animations.length).toBe(0)
+                        resolve()
+                    }, 50)
+                })
+
+                return <div ref={scope} />
+            }
+
+            render(
+                <MotionConfig skipAnimations>
+                    <Component />
+                </MotionConfig>
+            )
+        })
     })
 })

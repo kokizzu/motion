@@ -485,6 +485,15 @@ export interface ValueTransition
      * @public
      */
     inherit?: boolean
+
+    /**
+     * If true, the animation skips straight to its final value instead of
+     * tweening. Used by `MotionConfig`'s `skipAnimations` to opt entire
+     * subtrees out of animation (e.g. for E2E screenshot stability).
+     *
+     * @public
+     */
+    skipAnimations?: boolean
 }
 
 /**

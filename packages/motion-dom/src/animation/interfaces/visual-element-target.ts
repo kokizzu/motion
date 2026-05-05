@@ -46,6 +46,7 @@ export function animateTarget(
         : defaultTransition
 
     const reduceMotion = (transition as { reduceMotion?: boolean })?.reduceMotion
+    const skipAnimations = transition?.skipAnimations
 
     if (transitionOverride) transition = transitionOverride
 
@@ -75,6 +76,8 @@ export function animateTarget(
             delay,
             ...getValueTransition(transition || {}, key),
         }
+
+        if (skipAnimations) valueTransition.skipAnimations = true
 
         /**
          * If the value is already at the defined target, skip the animation.

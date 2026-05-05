@@ -25,6 +25,7 @@ function isSequence(value: unknown): value is AnimationSequence {
 interface ScopedAnimateOptions {
     scope?: AnimationScope
     reduceMotion?: boolean
+    skipAnimations?: boolean
 }
 
 /**
@@ -32,7 +33,7 @@ interface ScopedAnimateOptions {
  * to a specific element.
  */
 export function createScopedAnimate(options: ScopedAnimateOptions = {}) {
-    const { scope, reduceMotion } = options
+    const { scope, reduceMotion, skipAnimations } = options
     /**
      * Animate a sequence
      */
@@ -109,6 +110,12 @@ export function createScopedAnimate(options: ScopedAnimateOptions = {}) {
         let animations: AnimationPlaybackControlsWithThen[] = []
         let animationOnComplete: VoidFunction | undefined
 
+        const inherited: { reduceMotion?: boolean; skipAnimations?: boolean } =
+            {}
+        if (reduceMotion !== undefined) inherited.reduceMotion = reduceMotion
+        if (skipAnimations !== undefined)
+            inherited.skipAnimations = skipAnimations
+
         if (isSequence(subjectOrSequence)) {
             const { onComplete, ...sequenceOptions } =
                 (optionsOrKeyframes as SequenceOptions) || {}
@@ -117,9 +124,7 @@ export function createScopedAnimate(options: ScopedAnimateOptions = {}) {
             }
             animations = animateSequence(
                 subjectOrSequence,
-                reduceMotion !== undefined
-                    ? { reduceMotion, ...sequenceOptions }
-                    : (sequenceOptions as SequenceOptions),
+                { ...inherited, ...sequenceOptions } as SequenceOptions,
                 scope
             )
         } else {
@@ -131,9 +136,7 @@ export function createScopedAnimate(options: ScopedAnimateOptions = {}) {
             animations = animateSubject(
                 subjectOrSequence as ElementOrSelector,
                 optionsOrKeyframes as DOMKeyframesDefinition,
-                (reduceMotion !== undefined
-                    ? { reduceMotion, ...rest }
-                    : rest) as DynamicAnimationOptions,
+                { ...inherited, ...rest } as DynamicAnimationOptions,
                 scope
             )
         }
