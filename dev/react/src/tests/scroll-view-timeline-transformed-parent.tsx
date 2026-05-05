@@ -1,24 +1,16 @@
-/**
- * Reproduction of #3658 (literal port of reporter's repro).
- *
- * The bug: nested motion components inside a useScroll target end up bound
- * to a generic ScrollTimeline (cover-range default) instead of the intended
- * ViewTimeline, because their bindToMotionValue runs before the outer
- * target ref has been attached.
- *
- * Surfaces:
- *  - #opacity-probe: motion.div whose opacity = scrollYProgress (0→1).
- *    Reading getComputedStyle(opacity) reflects what the compositor (WAAPI)
- *    is drawing — independent of the JS-driven motion value.
- *  - #js-progress: a second scroll() with a 2-arg callback, which always
- *    takes the JS scrollInfo path. Provides the expected layout-based
- *    progress to compare against.
- */
-import { motion, scroll, useScroll, useTransform } from "framer-motion"
+// Repro for #3658: nested motion components inside a useScroll target bind
+// to ScrollTimeline (cover defaults) instead of ViewTimeline.
+import { motion, MotionValue, scroll, useScroll, useTransform } from "framer-motion"
 import * as React from "react"
 import { useEffect, useRef } from "react"
 
-const FullRangeProbe = ({ progress }: { progress: any }) => {
+const heroStyle: React.CSSProperties = {
+    height: "100vh",
+    display: "grid",
+    placeItems: "center",
+}
+
+const FullRangeProbe = ({ progress }: { progress: MotionValue<number> }) => {
     const opacity = useTransform(progress, [0, 1], [0, 1])
     return (
         <motion.div
@@ -35,24 +27,23 @@ const FullRangeProbe = ({ progress }: { progress: any }) => {
 
 const TextReveal = ({ text }: { text: string }) => {
     const ref = useRef<HTMLDivElement>(null)
+    const jsRef = useRef<HTMLSpanElement>(null)
     const { scrollYProgress } = useScroll({
         target: ref,
         offset: ["start start", "end end"],
     })
 
-    const jsRef = useRef<HTMLSpanElement>(null)
-
     useEffect(() => {
         if (!ref.current) return
         // 2-arg callback forces the JS scrollInfo path (see attach-function.ts).
         return scroll(
-            (_progress: number, info: any) => {
+            (_progress, info) => {
                 if (jsRef.current)
                     jsRef.current.innerText = info.y.progress.toFixed(4)
             },
             {
                 target: ref.current,
-                offset: ["start start", "end end"] as any,
+                offset: ["start start", "end end"],
             }
         )
     }, [])
@@ -73,17 +64,13 @@ const TextReveal = ({ text }: { text: string }) => {
             >
                 <div
                     style={{
-                        display: "flex",
-                        gap: 16,
                         fontFamily: "monospace",
                         fontSize: 18,
                     }}
                 >
-                    <span>
-                        js:{" "}
-                        <span id="js-progress" ref={jsRef}>
-                            0
-                        </span>
+                    js:{" "}
+                    <span id="js-progress" ref={jsRef}>
+                        0
                     </span>
                 </div>
                 <FullRangeProbe progress={scrollYProgress} />
@@ -141,16 +128,9 @@ const ClipReveal = ({ children }: { children: React.ReactNode }) => {
 export const App = () => {
     return (
         <div style={{ background: "#111", color: "#fff", minHeight: "100vh" }}>
-            <div
-                style={{
-                    height: "100vh",
-                    display: "grid",
-                    placeItems: "center",
-                }}
-            >
+            <div style={heroStyle}>
                 <h1>Scroll down ↓</h1>
             </div>
-
             <ClipReveal>
                 <section
                     style={{
@@ -162,14 +142,7 @@ export const App = () => {
                     <TextReveal text="Building digital experiences that blur the line between imagination and reality." />
                 </section>
             </ClipReveal>
-
-            <div
-                style={{
-                    height: "100vh",
-                    display: "grid",
-                    placeItems: "center",
-                }}
-            >
+            <div style={heroStyle}>
                 <h1>End</h1>
             </div>
         </div>
