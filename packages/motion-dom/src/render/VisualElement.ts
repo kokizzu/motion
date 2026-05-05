@@ -438,6 +438,17 @@ export abstract class VisualElement<
         }
     }
 
+    /**
+     * Register the instance with this VisualElement and the global
+     * visualElementStore. Idempotent — safe to call before mount() so that
+     * consumer ref callbacks can resolve the VisualElement via
+     * visualElementStore.get(instance).
+     */
+    register(instance: Instance) {
+        this.current = instance
+        visualElementStore.set(instance, this)
+    }
+
     mount(instance: Instance) {
         /**
          * If this element has been mounted before (e.g. after a Suspense
@@ -451,9 +462,7 @@ export abstract class VisualElement<
             }
         }
 
-        this.current = instance
-
-        visualElementStore.set(instance, this)
+        this.register(instance)
 
         if (this.projection && !this.projection.instance) {
             this.projection.mount(instance)

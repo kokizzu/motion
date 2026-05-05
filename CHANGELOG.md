@@ -4,10 +4,12 @@ Motion adheres to [Semantic Versioning](http://semver.org/).
 
 Undocumented APIs should be considered internal and may change without warning.
 
-## [Unreleased]
+## [12.38.1] 2026-05-05
 
 ### Fixed
 
+-   Updated `visualElement` hydration order.
+-   `useAnimate`: Now respects `skipAnimations`.
 -   `AnimatePresence`: Fix object-form `initial` values not applied on re-entry after exit completes.
 
 ## [12.38.0] 2026-03-16
