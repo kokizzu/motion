@@ -2,6 +2,8 @@
 
 import {
     AnimationPlaybackControls,
+    cancelMicrotask,
+    microtask,
     motionValue,
     supportsScrollTimeline,
     supportsViewTimeline,
@@ -39,13 +41,24 @@ function makeAccelerateConfig(
     target?: RefObject<HTMLElement | null>
 ) {
     return {
-        factory: (animation: AnimationPlaybackControls) =>
-            scroll(animation, {
-                ...options,
-                axis,
-                container: container?.current || undefined,
-                target: target?.current || undefined,
-            }),
+        // Refs attach child-first; defer so target.current is populated
+        // before scroll() reads it.
+        factory: (animation: AnimationPlaybackControls) => {
+            let cleanup: VoidFunction | undefined
+            const start = () => {
+                cleanup = scroll(animation, {
+                    ...options,
+                    axis,
+                    container: container?.current || undefined,
+                    target: target?.current || undefined,
+                })
+            }
+            microtask.read(start)
+            return () => {
+                cancelMicrotask(start)
+                cleanup?.()
+            }
+        },
         times: [0, 1],
         keyframes: [0, 1],
         ease: (v: number) => v,
